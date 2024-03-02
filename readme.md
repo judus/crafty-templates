@@ -1,5 +1,7 @@
 # Crafty-Templates
 
+Inconspicuous things with great impact!
+
 work in progress
 
 
