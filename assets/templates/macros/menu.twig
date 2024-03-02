@@ -1,0 +1,37 @@
+{% macro menu(entries, currentEntry, attributesParent = {}, attributesChild = {}) %}
+    <ul{{ attr(attributesParent) }}>
+        {% for navEntry in entries %}
+            {% set isActive = false %}
+            {% set showLinkText = navEntry.showLinkText???false %}
+
+            {% if currentEntry is defined and currentEntry is not null and currentEntry.url == navEntry.menuLink.url %}
+                {% set isActive = ' active-nav' %}
+            {% endif %}
+
+            {% set link = navEntry.menuLink.getLink({
+                text: navEntry.title,
+                class: 'link is-level-'~navEntry.level~' nav-item'~isActive
+            }) %}
+
+            {% if link %}
+                <li{{ attr(attributesChild) }}>
+                    {% if navEntry.menuIcon???null is not empty %}
+                        <a href="{{ navEntry.menuLink.getUrl() }}" target="{{ navEntry.menuLink.getTarget() }}">
+                            <img src="{{ navEntry.menuIcon.one().url }}" alt="{{ navEntry.title }}">
+                            {% if showLinkText %}{{ navEntry.title }}{% endif %}
+                        </a>
+                    {% else %}
+                        {{ link }}
+                    {% endif %}
+                </li>
+            {% else %}
+                <li{{ attr(attributesChild) }}>
+                    {% if navEntry.menuIcon???null is not empty %}
+                        <img src="{{ navEntry.menuIcon.one().url }}" alt="{{ navEntry.title }}">
+                    {% endif %}
+                    {{ navEntry.title }}
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endmacro %}

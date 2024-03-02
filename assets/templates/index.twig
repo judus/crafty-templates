@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+{% set template = resolve([
+    "entries/entry--#{entry.section.handle}--#{entry.type}--#{_viewMode ?? ''}",
+    "entries/entry--#{entry.section.handle}--#{entry.type}",
+    "entries/entry--#{entry.section.handle}--#{_viewMode ?? ''}",
+    "entries/entry--#{entry.section.handle}",
+    "entries/entry--#{_viewMode ?? ''}",
+    "entries/entry",
+]) %}
+{{ craft.app.config.custom.isDev ? template.hints|raw }}
+{% include template %}

@@ -1,0 +1,44 @@
+{% macro renderAsset(asset, viewMode, transformHandle, class, with) %}
+    {% set _assetKind = decamelize(asset.kind) %}
+    {% set _viewMode = viewMode is not empty ? '--'~decamelize(viewMode) %}
+    {% set _transformHandle = transformHandle is not empty ? '--'~decamelize(transformHandle) %}
+
+    {% set template = resolve([
+        "assets/asset--#{_assetKind}#{_transformHandle}.twig",
+        "assets/asset--#{_assetKind}.twig",
+        'assets/asset.twig'
+    ]) %}
+
+    {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+    {{ include(template, {
+        asset: asset,
+        viewMode: viewMode,
+        transformHandle: transformHandle is not empty ? transformHandle : viewMode,
+        transformHandleClass: transformHandle,
+        class: class,
+        with: with
+    }) }}
+{% endmacro %}
+
+{% macro image(assetQuery, transformHandle, class, with) %}
+    {% set asset = assetQuery.one() ??? assetQuery %}
+    {% if asset is not empty and asset.kind == 'image' %}
+        {{ _self.renderAsset(asset, null, transformHandle, class, with) }}
+    {% endif %}
+{% endmacro %}
+
+{% macro images(assetQuery, transformHandle, classWrapper = 'asset--images', classElement = 'asset--image', with) %}
+    {% set assets = assetQuery.all() %}
+    {% if assets %}
+        <ul class="{{ classWrapper }}">
+            {% for asset in assets %}
+                {% if asset is not empty and asset.kind == 'image' %}
+                    <li class="{{ classElement }}">
+                        {{ _self.renderAsset(asset, null, transformHandle, classElement, with) }}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}

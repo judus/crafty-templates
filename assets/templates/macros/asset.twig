@@ -1,0 +1,45 @@
+{% macro asset(asset, viewMode = '', transformHandle = '', attributes = [], with) %}
+    {% if asset is not empty %}
+        {% set _assetKind = decamelize(asset.kind) %}
+        {% set _viewMode = viewMode is not empty ? '--'~decamelize(viewMode) %}
+        {% set _transformHandle = transformHandle is not empty ? '--'~decamelize(transformHandle) %}
+
+        {% set template = resolve([
+            "assets/asset--#{_assetKind}#{_viewMode}#{_transformHandle}.twig",
+            "assets/asset--#{_assetKind}#{_viewMode}.twig",
+            "assets/asset--#{_assetKind}.twig",
+            'assets/asset.twig'
+        ]) %}
+
+        {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+        {{ include(template, {
+            asset: asset,
+            viewMode: viewMode,
+            transformHandle: transformHandle is not empty ? transformHandle : viewMode,
+            transformHandleClass: transformHandle,
+            attributes: {
+                alt: asset.altText|default(asset.title),
+                title: asset.hoverText|default(null)
+            },
+            with: with
+        }) }}
+    {% endif %}
+{% endmacro %}
+
+{% macro assets(assetQuery, viewMode, classWrapper = 'list--assets', classElement = 'item') %}
+    {%  if assetQuery is not empty %}
+        {% set assets = assetQuery.all() %}
+        {% if assets is not empty %}
+            <ul class="{{ classWrapper }}">
+                {% for asset in assets %}
+                    {% if asset is not empty %}
+                        <li class="{{ classElement }}">
+                            {{ _self.asset(asset, viewMode) }}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+{% endmacro %}

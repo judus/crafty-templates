@@ -1,0 +1,17 @@
+{% if fieldAttributes is not defined %}
+    {% set fieldAttributes = {
+        class: [
+            "field--" ~ decamelize(field.handle),
+        ]
+    } %}
+{% endif %}
+
+{% if value.url is not empty %}
+    <div{{ attr(fieldAttributes) }}>{% apply spaceless %}
+        {{ value.link }}
+    {% endapply %}</div>
+{% else %}
+    {% if craft.app.config.env == 'dev' %}
+        <!-- No value -->
+    {% endif %}
+{% endif %}

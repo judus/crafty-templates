@@ -1,0 +1,36 @@
+{% from theme("macros/field") import fields %}
+{% from theme("macros/image") import image %}
+
+{% extends theme("layout/html") %}
+
+{% if entryAttributes is not defined %}
+    {% set entryAttributes = {
+        class: [
+            "entry--#{entry.section.handle}",
+        ]
+    } %}
+{% endif %}
+
+{% block content %}
+    <article{{ attr(entryAttributes) }}>
+        <section>
+            {% if entry.backgroundImage is not empty %}
+                <div class="inner">
+                    <div class="background">
+                        {{ image(entry.backgroundImage, 'banner') }}
+                    </div>
+                    <div class="foreground">
+                        <h1>{{ entry.title|raw }}</h1>
+                        {{ fields(entry, { only: ['text'] }) }}
+                    </div>
+                </div>
+            {% else %}
+                <div class="inner">
+                    <h1>{{ entry.title|raw }}</h1>
+                    {{ fields(entry, { only: ['text'] }) }}
+                </div>
+            {% endif %}
+        </section>
+        {{ fields(entry, { only: ['blocks'] }) }}
+    </article>
+{% endblock %}

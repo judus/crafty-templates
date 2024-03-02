@@ -1,0 +1,57 @@
+{% macro field(field, element) %}
+    {% set fieldType = decamelize(craft.module.fieldType(field)) %}
+    {% set fieldHandle = decamelize(field.handle) %}
+
+    {% set template = resolve([
+        "fields/field--#{fieldType}--#{fieldHandle}.twig",
+        "fields/field--#{fieldHandle}.twig",
+        "fields/field--#{fieldType}.twig",
+        'fields/field.twig'
+    ]) %}
+
+    {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+    {{ include(template, {
+        value: element[field.handle],
+        field: field,
+        element: element
+    }) }}
+{% endmacro %}
+
+{% macro fields(element, filter = { tab: null, without: [], only: [] }) %}
+
+    {% set tab = filter.tab|default(false) %}
+    {% set without = filter.without|default([]) %}
+    {% set only = tab ? craft.module.fieldHandlesFromTab(element, tab) : [] %}
+    {% set only = filter.only|default(null) ? filter.only : only %}
+
+    {% set fields = [] %}
+
+    {# Filters the custom fields according to 'without' and 'only' and store into fields[] #}
+    {% for field in element.getFieldLayout().customFields() %}
+        {% if without is empty or field.handle not in without %}
+            {% if only is empty or field.handle in only %}
+                {% set fields = fields|merge([field]) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% if only is not empty %}
+        {# Print in order of the only array #}
+        {% for handle in only %}
+            {% for field in fields %}
+                {%  if field.handle == handle %}
+                    {{ _self.field(field, element) }}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+
+    {% else %}
+        {# Print in order of the fieldLayout #}
+        {% for field in fields %}
+            {{ _self.field(field, element) }}
+        {% endfor %}
+
+    {% endif %}
+
+{% endmacro %}

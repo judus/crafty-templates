@@ -1,0 +1,10 @@
+{% set viewMode = viewMode is not empty ? '--'~viewMode %}
+{% set transformHandleClass = transformHandleClass is not empty ? '--'~transformHandleClass %}
+
+<div class="asset--{{ asset.kind }}{{ viewMode }}{{ transformHandleClass }}">
+    {% block content %}
+        <h1>{{ asset.title }}</h1>
+        <a href="{{ asset.url }}">{{ asset.url }}</a>
+        {{ asset.text }}
+    {% endblock %}
+</div>

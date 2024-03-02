@@ -1,0 +1,20 @@
+{% from theme("macros/menu") import menu %}
+{% from theme("macros/field") import fields %}
+<input id="menu-state" type="checkbox" style="display: none;"/>
+<header>
+    <div class="inner">
+        <div class="flex">
+            <div id="logo">
+                <a href="/">
+                    {{ fields(general, { only: ['logo']}) }}
+                </a>
+            </div>
+            <nav>
+                {{ menu(craft.entries({ 'section': 'mainMenu', 'level': 1 }).all(), entry) }}
+            </nav>
+            <label class="menu-toggle" for="menu-state">
+                <span class="menu-button"></span>
+            </label>
+        </div>
+    </div>
+</header>

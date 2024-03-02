@@ -1,0 +1,22 @@
+{% from theme("macros/field") import fields %}
+
+
+{#
+Available variables:
+- block: craft\elements\MatrixBlock
+- field: craft\base\Field
+#}
+
+{% if attributes is not defined %}
+    {% set attributes = {
+        class: [
+            "element#{viewMode}",
+        ]
+    } %}
+{% endif %}
+
+<div{{ attr(attributes) }}>{% apply spaceless %}
+    {% block content %}
+        {{ fields(element) }}
+    {% endblock %}
+{% endapply %}</div>

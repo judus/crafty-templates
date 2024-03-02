@@ -1,0 +1,33 @@
+{% macro element(element, viewMode, wrapper, classString) %}
+    {% set viewMode = viewMode ? '--'~decamelize(viewMode) : '' %}
+    {% set classString = classString ? ' '~classString : '' %}
+
+    {% set template = resolve([
+        "elements/element#{viewMode}.twig",
+        "elements/element.twig"
+    ]) %}
+
+    {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+    {% if wrapper %}
+        <{{ wrapper}} class="{{ "element#{viewMode}#{classString}" }}">
+    {% endif %}
+
+    {{ include(template, {element: element}) }}
+
+    {% if wrapper %}
+        </{{ wrapper }}>
+    {% endif %}
+{% endmacro %}
+
+{% macro elements(elements, viewMode, wrapper, classString) %}
+    {% if elements is not empty %}
+        <ul class="items">
+            {% for element in elements %}
+                <li class="item">
+                    {{ _self.element(element, viewMode, wrapper, classString) }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}

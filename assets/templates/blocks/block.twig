@@ -1,0 +1,33 @@
+{% from theme("macros/field") import fields %}
+
+{#
+Available variables:
+ - block: craft\elements\MatrixBlock
+#}
+
+{% set attributes = {
+    class: [
+        "block--"~decamelize(blockElement.type)
+    ]
+} %}
+
+{% if blockAttributes is defined %}
+    {% set attributes = mergeRecursive(attributes, blockAttributes) %}
+{% endif %}
+
+{% if anchorName is not defined %}
+    {% set anchorName = block.anchor %}
+    {% set attributes = {
+        id: anchorName,
+        class: attributes.class,
+        style: attributes.style ??? null
+    } %}
+{% endif %}
+
+<section{{ attr(attributes) }}>
+    <div class="inner">
+        {% block content %}
+            {{ fields(block, { without: ['anchor']}) }}
+        {% endblock %}
+    </div>
+</section>

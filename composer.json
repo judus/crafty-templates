@@ -1,0 +1,38 @@
+{
+    "name": "maduser/crafty-templates",
+    "description": "A template system for Craft CMS",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin"
+    ],
+    "support": {
+        "docs": "",
+        "issues": ""
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Julien Duseyau",
+            "homepage": "https://github.com/judus/crafty-templates"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^4.0.0"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+          "Maduser\\Craft\\CraftyTemplates\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Crafty Templates",
+        "handle": "crafty-templates",
+        "developer": "Julien Duseyau"
+    }
+}

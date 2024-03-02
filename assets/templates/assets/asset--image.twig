@@ -1,0 +1,47 @@
+{% extends theme("assets/asset") %}
+
+{% block content %}
+    {% if transformHandle is not empty %}
+
+        {% set transforms = craft.app.config.getConfigFromFile('transforms').transforms[transformHandle]???null %}
+
+        {% if transforms is null %}
+            {% do craft.app.abort(500, 'Transform handle "#{transformHandle}" does not exist') %}
+        {% endif %}
+
+        {% set className = transforms.attributes.class???null %}
+        <picture>
+            {% for variants in transforms.variants %}
+                {% for media, variant in variants %}
+                    {% do asset.setTransform({ width: variant.width???'', height: variant.height???'', format: 'webp' }) %}
+                    {{ tag('source', {
+                        type: asset.mimeType,
+                        srcset: asset.getSrcset(variant.densities???['1x']),
+                        media: media,
+                    }) }}
+                    {% do asset.setTransform({ width: variant.width???'', height: variant.height???'', format: 'jpg' }) %}
+                    {{ tag('source', {
+                        type: asset.mimeType,
+                        srcset: asset.getSrcset(variant.densities???['1x']),
+                        media: media,
+                    }) }}
+                {% endfor %}
+            {% endfor %}
+            {{ tag('img', {
+                src: asset.url,
+                alt: asset.title,
+                title: asset.hoverText,
+                class: className
+            }) }}
+        </picture>
+    {% else %}
+        {{ tag('img', {
+            src: asset.url,
+            alt: asset.title,
+            title: asset.hoverText,
+        }) }}
+    {% endif %}
+    {% if asset.description %}
+        <div class="description">{{ asset.description }}</div>
+    {% endif %}
+{% endblock %}

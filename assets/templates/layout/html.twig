@@ -1,0 +1,16 @@
+{% cache globally using key 'entry-content-' ~ entry.uid %}
+<html lang="{{ craft.app.language }}">
+<head>
+    {% include theme("includes/head") %}
+    {% block inlineStyles %}{% endblock %}
+</head>
+<body {{ attr(bodyAttributes ?? { id: 'top', class: [decamelize(entry.section.handle???''), 'is-top-page'] }) }}>
+    {% include theme("layout/header") %}
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    {% include theme("layout/footer") %}
+    <script src="{{ rev('/themes/default/main.js') }}"></script>
+</body>
+</html>
+{% endcache %}

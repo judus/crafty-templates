@@ -1,0 +1,7 @@
+{% from theme("macros/element") import elements %}
+
+{% extends theme("fields/field.twig") %}
+
+{% block content %}
+    {{ elements(value.all, "field--" ~ field.handle) }}
+{% endblock %}

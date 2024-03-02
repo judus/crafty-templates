@@ -1,0 +1,39 @@
+{% macro view(entry, viewMode, wrapper, classString) %}
+    {% set viewMode = viewMode ? '--'~viewMode : '' %}
+    {% set classString = classString ? ' '~classString : '' %}
+
+    {% set template = resolve([
+        "entries/entry--#{entry.section.handle}#{viewMode}.twig",
+        "entries/entry.twig"
+    ]) %}
+
+    {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+    {% if wrapper %}
+        <{{ wrapper}} class="{{ "entry--#{entry.section.handle}#{viewMode}#{classString}" }}">
+    {% endif %}
+
+    {{ include(template, {entry: entry}) }}
+
+    {% if wrapper %}
+        </{{ wrapper }}>
+    {% endif %}
+{% endmacro %}
+
+{% macro views(elements, viewMode, wrapper, classString) %}
+    {% for element in elements %}
+        {{ _self.view(element, viewMode, wrapper, classString) }}
+    {% endfor %}
+{% endmacro %}
+
+{% macro list(elements, viewMode, wrapper, classString) %}
+    {% if elements is not empty %}
+        <ul class="items">
+            {% for element in elements %}
+                <li class="item">
+                    {{ _self.view(element, viewMode, wrapper, classString) }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endmacro %}

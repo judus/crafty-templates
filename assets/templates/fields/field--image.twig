@@ -1,0 +1,7 @@
+{% from theme("macros/image") import image %}
+
+{% extends theme("fields/field.twig") %}
+
+{% block content %}
+    {{ image(value, 'content-image') }}
+{% endblock %}

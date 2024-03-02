@@ -1,0 +1,13 @@
+{% if fieldAttributes is not defined %}
+    {% set fieldAttributes = {
+        class: [
+            "field--" ~ decamelize(field.handle),
+        ]
+    } %}
+{% endif %}
+
+<div{{ attr(fieldAttributes) }}>{% apply spaceless %}
+    {% cache using key value.url %}
+        {{ value.render }}
+    {% endcache %}
+{% endapply %}</div>

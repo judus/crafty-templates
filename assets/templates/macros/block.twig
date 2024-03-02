@@ -1,0 +1,21 @@
+{% macro block(blockElement, variant) %}
+    {% set blockName = decamelize(blockElement.type) %}
+
+    {% set template = resolve([
+        "blocks/block--#{blockName}.twig",
+        'blocks/block.twig'
+    ]) %}
+
+    {{ craft.app.config.custom.isDev ? template.hints|raw }}
+
+    {{ include(template, {
+        fields: blockElement.getFieldLayout().customFields(),
+        block: blockElement
+    }) }}
+{% endmacro %}
+
+{% macro blocks(blockElements, variant) %}
+    {% for blockElement in blockElements %}
+        {{ _self.block(blockElement, variant) }}
+    {% endfor %}
+{% endmacro %}
