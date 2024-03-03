@@ -77,7 +77,7 @@ class TwigExtensions extends AbstractExtension implements ExtensionInterface
      *
      * @param array $templatePaths An array of template paths to check.
      */
-    public function resolve(array $templatePaths = []): object
+    public function resolve(array $templatePaths = []): array
     {
         return (new TemplatePathResolution())->resolve($templatePaths);
     }

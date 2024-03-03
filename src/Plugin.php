@@ -93,6 +93,11 @@ class Plugin extends BasePlugin
     protected function registerTwigExtension(): void
     {
         if (Craft::$app->getRequest()->getIsSiteRequest()) {
+
+            if (Craft::$app->config->general->devMode) {
+                TemplatePathResolution::invalidateCache();
+            }
+
             $pathResolver = Craft::$app->get('pathResolver');
             $twigExtension = new TwigExtensions($pathResolver);
             Craft::$app->getView()->registerTwigExtension($twigExtension);
