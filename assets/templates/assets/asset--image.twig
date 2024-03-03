@@ -31,7 +31,10 @@
                 src: asset.url,
                 alt: asset.title,
                 title: asset.hoverText,
-                class: className
+                class: className,
+                width: asset.width,
+                height: asset.height,
+                loading: 'lazy'
             }) }}
         </picture>
     {% else %}
@@ -39,6 +42,9 @@
             src: asset.url,
             alt: asset.title,
             title: asset.hoverText,
+            width: asset.width,
+            height: asset.height,
+            loading: 'lazy'
         }) }}
     {% endif %}
     {% if asset.description %}
