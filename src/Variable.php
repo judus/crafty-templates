@@ -7,6 +7,11 @@ use ReflectionClass;
 
 class Variable
 {
+    public function getConfig(): array
+    {
+        return Plugin::getInstance()->getConfig();
+    }
+
     /**
      * @param ElementInterface $element
      * @param string           $tabName

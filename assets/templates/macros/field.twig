@@ -1,5 +1,5 @@
 {% macro field(field, element) %}
-    {% set fieldType = decamelize(craft.module.fieldType(field)) %}
+    {% set fieldType = decamelize(craft.crafty.fieldType(field)) %}
     {% set fieldHandle = decamelize(field.handle) %}
 
     {% set template = resolve([
@@ -22,7 +22,7 @@
 
     {% set tab = filter.tab|default(false) %}
     {% set without = filter.without|default([]) %}
-    {% set only = tab ? craft.module.fieldHandlesFromTab(element, tab) : [] %}
+    {% set only = tab ? craft.crafty.fieldHandlesFromTab(element, tab) : [] %}
     {% set only = filter.only|default(null) ? filter.only : only %}
 
     {% set fields = [] %}

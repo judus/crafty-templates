@@ -7,6 +7,7 @@ use craft\base\Plugin as BasePlugin;
 use craft\console\Application;
 use craft\events\RegisterTemplateRootsEvent;
 use craft\events\TemplateEvent;
+use craft\helpers\ArrayHelper;
 use craft\web\twig\variables\CraftVariable;
 use craft\web\View;
 use Maduser\Craft\CraftyTemplates\Console\Controllers\CraftyController;
@@ -16,6 +17,8 @@ use yii\base\Event;
 
 class Plugin extends BasePlugin
 {
+    public array $config = [];
+
     /**
      * @var Plugin
      */
@@ -44,10 +47,66 @@ class Plugin extends BasePlugin
     {
         parent::init();
         self::$plugin = $this;
+        $this->mergeDefaultAndUserConfig();
 
         Craft::setAlias('@crafty-assets', dirname(__DIR__) . '/assets');
         Craft::setAlias('@crafty-templates', dirname(__DIR__) . '/assets/templates');
 
+        // Register the default path resolver
+        Craft::$app->setComponents([
+            'pathResolver' => [
+                'class' => TemplatePathResolution::class,
+            ],
+        ]);
+
+        $this->registerTwigExtension();
+        $this->registerConsoleCommands();
+        $this->registerPluginTemplateRoots();
+        $this->registerTemplateHooksService();
+        $this->registerOurVariable();
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * Merge default and user config
+     *
+     * @return void
+     */
+    protected function mergeDefaultAndUserConfig(): void
+    {
+
+        $defaultConfig = require __DIR__ . '/config.php';
+        $userConfig = Craft::$app->getConfig()->getConfigFromFile('crafty');
+        $this->config = ArrayHelper::merge($defaultConfig, $userConfig);
+    }
+
+    /**
+     * Register Twig extensions
+     *
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function registerTwigExtension(): void
+    {
+        if (Craft::$app->getRequest()->getIsSiteRequest()) {
+            $pathResolver = Craft::$app->get('pathResolver');
+            $twigExtension = new TwigExtensions($pathResolver);
+            Craft::$app->getView()->registerTwigExtension($twigExtension);
+        }
+
+    }
+
+    /**
+     * Register console commands
+     *
+     * @return void
+     */
+    protected function registerConsoleCommands(): void
+    {
         Event::on(
             Application::class,
             ApplicationAlias::EVENT_BEFORE_REQUEST,
@@ -59,22 +118,32 @@ class Plugin extends BasePlugin
                 }
             }
         );
+    }
 
-        // Register Twig extensions
-        if (Craft::$app->getRequest()->getIsSiteRequest()) {
-            Craft::$app->getView()->registerTwigExtension(new TwigExtensions());
-        }
-
-        // Register plugin template roots
+    /**
+     * Register plugin template roots
+     *
+     * @return void
+     */
+    protected function registerPluginTemplateRoots(): void
+    {
         Event::on(
             View::class,
             View::EVENT_REGISTER_SITE_TEMPLATE_ROOTS,
             function (RegisterTemplateRootsEvent $event) {
-                $event->roots['crafty-stk'] = Craft::getAlias('@root/templates/crafty-stk');
-                $event->roots['crafty'] = Craft::getAlias('@crafty-templates');
+                foreach ($this->config['templateRoots'] as $key => $path) {
+                    $event->roots[$key] = Craft::getAlias($path);
+                }
             }
         );
+    }
 
+    /**
+     * @return void
+     * @throws RuntimeError
+     */
+    protected function registerTemplateHooksService(): void
+    {
         // Register TemplateHooks service
         if (Craft::$app->config->custom->enablePreRenderHooks) {
             TemplateHooks::prefix('hook_');
@@ -89,7 +158,13 @@ class Plugin extends BasePlugin
                 );
             }
         }
+    }
 
+    /**
+     * @return void
+     */
+    protected function registerOurVariable(): void
+    {
         // Register our Variable
         Event::on(
             CraftVariable::class,
@@ -97,7 +172,7 @@ class Plugin extends BasePlugin
             function (Event $event) {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
-                $variable->set('module', Variable::class);
+                $variable->set('crafty', Variable::class);
             }
         );
     }

@@ -3,6 +3,7 @@
 namespace Maduser\Craft\CraftyTemplates;
 
 use Craft;
+use craft\helpers\ArrayHelper;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\ExtensionInterface;
 use Twig\TwigFunction;
@@ -35,7 +36,7 @@ class TwigExtensions extends AbstractExtension implements ExtensionInterface
     {
         $paths = [];
 
-        $fallbackDirs = array_keys(Craft::$app->config->getConfigFromFile('crafty')['templateRoots']);
+        $fallbackDirs = array_keys(Plugin::$plugin->getConfig()['templateRoots']);
 
         $paths[] = $path;
 
@@ -60,9 +61,15 @@ class TwigExtensions extends AbstractExtension implements ExtensionInterface
         return strtolower(preg_replace(['/([a-z\d])([A-Z])/', '/([^-])([A-Z][a-z])/'], '$1-$2', $string));
     }
 
+    /**
+     * @param array $attr1
+     * @param array $attr2
+     *
+     * @return array
+     */
     public function mergeRecursive(array $attr1, array $attr2): array
     {
-        return array_merge_recursive($attr1, $attr2);
+        return ArrayHelper::merge($attr1, $attr2);
     }
 
     /**
@@ -70,49 +77,8 @@ class TwigExtensions extends AbstractExtension implements ExtensionInterface
      *
      * @param array $templatePaths An array of template paths to check.
      */
-    public function resolve(array $templatePaths = [])
+    public function resolve(array $templatePaths = []): object
     {
-        $hints = [];
-        $resolved = null;
-        $fallbackDirs = array_keys(Craft::$app->config->getConfigFromFile('crafty')['templateRoots']);
-
-        $twig = Craft::$app->view->getTwig();
-
-        foreach ($templatePaths as $originalPath) { // Use $originalPath to keep original $path intact
-            $check = false;
-
-            if (!$resolved && $twig->getLoader()->exists($originalPath)) {
-                $resolved = $originalPath;
-                $check = true;
-            }
-
-            $hints[] = "<!-- [" . ($check ? 'X' : ' ') . "] " . str_replace(Craft::getAlias('@root'), '', Craft::getAlias('@templates'))."/" . $originalPath . " -->";
-
-            foreach ($fallbackDirs as $dir) {
-                $check = false;
-                $modifiedPath = $dir . '/' . $originalPath; // Use a modified path variable
-
-                if (!$resolved && $twig->getLoader()->exists($modifiedPath)) {
-                    $resolved = $modifiedPath;
-                    $check = true;
-                }
-                $hints[] = "<!-- [" . ($check ? 'X' : ' ') . "] " . $modifiedPath . " -->";
-            }
-        }
-
-        $resolution = new class {
-            public ?string $resolved = '';
-            public string $hints = '';
-
-            public function __toString(): string
-            {
-                return $this->resolved;
-            }
-        };
-
-        $resolution->hints = implode("\n", $hints);
-        $resolution->resolved = $resolved ?? '';
-
-        return $resolution;
+        return (new TemplatePathResolution())->resolve($templatePaths);
     }
 }
